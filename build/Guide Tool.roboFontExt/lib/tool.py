@@ -308,6 +308,7 @@ class GuidelineTool(BaseEventTool):
                     position=(x, y),
                     angle=angle
                 )
+                dest.performUndo()
                 self.selectedGuidelines = {
                     guideline : getGuidelineState(guideline)
                 }

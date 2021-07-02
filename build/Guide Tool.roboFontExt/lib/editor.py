@@ -5,9 +5,6 @@ from mojo.UI import getDefault, CurrentGlyphWindow
 from fontParts.fontshell import RGuideline
 from lib.fontObjects.fontPartsWrappers import RGuideline
 
-import objc
-objc.setVerbose(True)
-
 numberTextFieldWidth = 50
 noColor = (1.0, 1.0, 1.0, 1.0)
 
