@@ -1,1 +1,0 @@
-identifierStub = "com.typesupply.GuideTool."

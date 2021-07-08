@@ -6,9 +6,9 @@ from booleanOperations.booleanGlyph import BooleanGlyph
 from lib.tools import bezierTools
 from mojo.events import installTool, BaseEventTool, extractNSEvent
 from mojo.UI import getDefault
-from editor import GuidelineEditorController
-from images import guideToolToolbarIcon, guideToolCursor
-from defaults import identifierStub
+from .editor import GuidelineEditorController
+from .images import guideToolToolbarIcon, guideToolCursor
+from .defaults import identifierStub
 
 
 deleteKeys = [

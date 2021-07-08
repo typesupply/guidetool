@@ -3,7 +3,30 @@
 <plist version="1.0">
 <dict>
 	<key>addToMenu</key>
-	<array/>
+	<array>
+		<dict>
+			<key>path</key>
+			<string>menu_addGlyphGuideline.py</string>
+			<key>preferredName</key>
+			<string>Add Glyph Guide</string>
+			<key>shortKey</key>
+			<array>
+				<integer>393216</integer>
+				<string>g</string>
+			</array>
+		</dict>
+		<dict>
+			<key>path</key>
+			<string>menu_addFontGuideline.py</string>
+			<key>preferredName</key>
+			<string>Add Font Guide</string>
+			<key>shortKey</key>
+			<array>
+				<integer>1441792</integer>
+				<string>g</string>
+			</array>
+		</dict>
+	</array>
 	<key>developer</key>
 	<string>Type Supply</string>
 	<key>developerURL</key>
@@ -21,7 +44,7 @@
 	<key>requiresVersionMinor</key>
 	<string>0</string>
 	<key>timeStamp</key>
-	<real>1625227405.8449531</real>
+	<real>1625777976.3621461</real>
 	<key>version</key>
 	<string>1.0.0.a1</string>
 </dict>
