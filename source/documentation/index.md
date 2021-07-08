@@ -19,3 +19,4 @@ Prefs:
 - highlight alpha scale
 - want italic angle
 - color swatches
+- macros

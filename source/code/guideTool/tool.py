@@ -6,9 +6,10 @@ from booleanOperations.booleanGlyph import BooleanGlyph
 from lib.tools import bezierTools
 from mojo.events import installTool, BaseEventTool, extractNSEvent
 from mojo.UI import getDefault
+from mojo.extensions import getExtensionDefault
 from .editor import GuidelineEditorController
 from .images import guideToolToolbarIcon, guideToolCursor
-from .defaults import identifierStub
+from .defaults import extensionIdentifier
 
 
 deleteKeys = [
@@ -33,8 +34,7 @@ class GuidelineTool(BaseEventTool):
     snappingToThesePoints = []
     snapToPointSymbolColor = None
 
-    # prefs
-    wantsItalicAngle = True
+    wantItalicAngle = True
     wantsSnapToPoint = True
     wantsSnapToFuturePoints = True
     highlightAlphaScale = 0.15
@@ -42,7 +42,7 @@ class GuidelineTool(BaseEventTool):
     def setup(self):
         self.loadDefaults()
         container = self.extensionContainer(
-            identifier=identifierStub + "background",
+            identifier=extensionIdentifier + ".background",
             location="background",
             clear=True
         )
@@ -73,6 +73,10 @@ class GuidelineTool(BaseEventTool):
             pointCount=10,
             inner=0.2
         )
+        self.wantItalicAngle = getExtensionDefault(extensionIdentifier + ".wantItalicAngle")
+        self.wantsSnapToPoint = getExtensionDefault(extensionIdentifier + ".snapToPoint")
+        self.wantsSnapToFuturePoints = getExtensionDefault(extensionIdentifier + ".snapToFuturePoint")
+        self.highlightAlphaScale = getExtensionDefault(extensionIdentifier + ".highlightAlphaScale")
 
     def getToolbarIcon(self):
         return guideToolToolbarIcon
@@ -648,7 +652,7 @@ class GuidelineTool(BaseEventTool):
     # Italic Support
 
     def getVerticalAngle(self):
-        if not self.wantsItalicAngle:
+        if not self.wantItalicAngle:
             return 90
         glyph = self.getGlyph()
         font = glyph.font
@@ -795,7 +799,7 @@ def scaleColorAlpha(color, scale):
 
 # Factories
 
-snapToPointsKey = identifierStub + "snapToPoints"
+snapToPointsKey = extensionIdentifier + ".snapToPoints"
 
 def getAllPointsFromGlyph(glyph):
     points = set()

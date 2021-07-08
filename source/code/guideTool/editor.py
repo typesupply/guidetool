@@ -4,6 +4,8 @@ import ezui
 from mojo.UI import getDefault, CurrentGlyphWindow
 from fontParts.fontshell import RGuideline
 from lib.fontObjects.fontPartsWrappers import RGuideline
+from mojo.extensions import getExtensionDefault
+from .defaults import extensionIdentifier
 
 numberTextFieldWidth = 50
 noColor = (1.0, 1.0, 1.0, 1.0)
@@ -11,7 +13,6 @@ noColor = (1.0, 1.0, 1.0, 1.0)
 """
 - italic angle button
 - undo state
-- colors from prefs
 
 Issues:
 - window doesn't appear in correct place
@@ -32,14 +33,7 @@ class GuidelineEditorController(ezui.WindowController):
         self.glyph = glyph
         self.editor = glyphEditor
 
-        self.defaultColors = [
-            (1, 0, 0, 0.5),
-            (0, 1, 0, 1),
-            (0, 0, 1, 1),
-            (1, 1, 0, 1),
-            (1, 0, 1, 1),
-            (0, 1, 1, 1)
-        ]
+        self.defaultColors = getExtensionDefault(extensionIdentifier + ".swatchColors")
 
         # level: radio buttons
         levelDescription = dict(

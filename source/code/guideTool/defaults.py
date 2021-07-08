@@ -1,6 +1,7 @@
+from mojo.extensions import registerExtensionDefaults
 from .smart import parseRules
 
-identifierStub = "com.typesupply.GuideTool."
+extensionIdentifier = "com.typesupply.GuideTool"
 
 macros = """
 > lowercase
@@ -141,3 +142,28 @@ for name, lines in defaultMacros.items():
     rules = parseRules("\n".join(lines))
     assert isinstance(rules, dict)
     defaultMacros[name] = rules
+
+# Registry
+# --------
+
+defaults = {
+    "smartMacros" : defaultMacros,
+    "snapToPoint" : True,
+    "snapToFuturePoint" : True,
+    "wantItalicAngle" : True,
+    "highlightAlphaScale" : 0.15,
+    "swatchColors" : [
+        (1, 0, 0, 0.5),
+        (0, 1, 0, 1),
+        (0, 0, 1, 1),
+        (1, 1, 0, 1),
+        (1, 0, 1, 1),
+        (0, 1, 1, 1)
+    ]
+}
+
+defaults = {
+    extensionIdentifier + "." + key : value
+    for key, value in defaults.items()
+}
+registerExtensionDefaults(defaults)
