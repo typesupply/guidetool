@@ -5,7 +5,11 @@ from mojo.UI import getDefault, CurrentGlyphWindow
 from fontParts.fontshell import RGuideline
 from lib.fontObjects.fontPartsWrappers import RGuideline
 from mojo.extensions import getExtensionDefault
-from .defaults import extensionIdentifier
+try:
+    from .defaults import extensionIdentifier
+    from .smart import parseRules
+except ModuleNotFoundError:
+    pass
 
 numberTextFieldWidth = 50
 noColor = (1.0, 1.0, 1.0, 1.0)
@@ -33,7 +37,8 @@ class GuidelineEditorController(ezui.WindowController):
         self.glyph = glyph
         self.editor = glyphEditor
 
-        self.defaultColors = getExtensionDefault(extensionIdentifier + ".swatchColors")
+        # self.defaultColors = getExtensionDefault(extensionIdentifier + ".swatchColors")
+        self.defaultColors = [(1, 0, 0, 1)]
 
         # level: radio buttons
         levelDescription = dict(
@@ -165,6 +170,15 @@ class GuidelineEditorController(ezui.WindowController):
             value=guideline.showMeasurements
         )
 
+        # rules
+        rulesDescription = dict(
+            identifier="rules",
+            type="TextEditor",
+            text="",
+            width=175,
+            height=100
+        )
+
         # window
         windowContent = dict(
             identifier="guidelineForm",
@@ -203,6 +217,11 @@ class GuidelineEditorController(ezui.WindowController):
                 dict(
                     type="Item",
                     itemDescription=measurementDescription
+                ),
+                dict(
+                    type="Item",
+                    text="Rules:",
+                    itemDescription=rulesDescription
                 )
             ]
         )
@@ -216,9 +235,26 @@ class GuidelineEditorController(ezui.WindowController):
             windowDescription,
             controller=self
         )
+        self.enableRulesEditor(startup=True)
 
     def started(self):
         self.w.open()
+
+    def enableRulesEditor(self, startup=False):
+        rulesEditor = self.w.findItem("rules")
+        editable = self.guideline.glyph is None
+        if not startup:
+            if rulesEditor.getNSTextView().isEditable() == editable:
+                return
+        if not editable:
+            rules = ""
+        else:
+            rules = self.guideline.naked().lib.get(
+                extensionIdentifier + ".rules",
+                ""
+            )
+        rulesEditor.set(rules)
+        rulesEditor.getNSTextView().setEditable_(editable)
 
     def colorSwatchesPullDownButtonCallback(self, sender):
         button = self.w.findItem("colorSwatchesPullDownButton")
@@ -252,6 +288,7 @@ class GuidelineEditorController(ezui.WindowController):
         color = data["colorColorWell"]
         magnetic = data["magneticSlider"]
         measurements = data["measurementsCheckbox"]
+        rules = data["rules"]
         if color == noColor:
             color = None
         if isGlobal != wantsGlobal:
@@ -272,9 +309,22 @@ class GuidelineEditorController(ezui.WindowController):
         guideline.color = color
         guideline.magnetic = magnetic
         guideline.showMeasurements = measurements
+        if wantsGlobal:
+            parsed = parseRules(rules, macros={})
+            if isinstance(parsed, str):
+                print(parsed)
+            else:
+                guideline.naked().lib[
+                    extensionIdentifier + ".rules"
+                ] = rules
+        self.enableRulesEditor()
+
 
 
 if __name__ == "__main__":
+    from defaults import extensionIdentifier
+    from smart import parseRules
+
     editor = CurrentGlyphWindow()
     glyph = CurrentGlyph()
     font = glyph.font

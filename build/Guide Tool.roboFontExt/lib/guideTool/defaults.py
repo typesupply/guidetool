@@ -166,4 +166,6 @@ defaults = {
     extensionIdentifier + "." + key : value
     for key, value in defaults.items()
 }
-registerExtensionDefaults(defaults)
+
+def main():
+    registerExtensionDefaults(defaults)

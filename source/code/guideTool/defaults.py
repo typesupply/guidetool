@@ -1,5 +1,8 @@
 from mojo.extensions import registerExtensionDefaults
-from .smart import parseRules
+try:
+    from .smart import parseRules
+except ImportError:
+    from smart import parseRules
 
 extensionIdentifier = "com.typesupply.GuideTool"
 
@@ -166,4 +169,6 @@ defaults = {
     extensionIdentifier + "." + key : value
     for key, value in defaults.items()
 }
-registerExtensionDefaults(defaults)
+
+def main():
+    registerExtensionDefaults(defaults)
