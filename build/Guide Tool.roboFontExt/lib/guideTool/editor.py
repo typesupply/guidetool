@@ -261,6 +261,8 @@ class GuidelineEditorController(ezui.WindowController):
     def italicAnglePushButtonCallback(self, sender):
         angleTextField = self.w.findItem("angleTextField")
         angle = self.glyph.font.info.italicAngle
+        if angle is None:
+            angle = 0
         angle += 90
         angleTextField.set(angle)
         form = self.w.findItem("guidelineForm")
