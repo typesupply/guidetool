@@ -1,8 +1,5 @@
 from mojo.extensions import registerExtensionDefaults
-try:
-    from .smart import parseRules
-except ImportError:
-    from smart import parseRules
+from .smart import parseRules
 
 extensionIdentifier = "com.typesupply.GuideTool"
 

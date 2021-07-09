@@ -6,7 +6,6 @@ import defcon
 # ------
 #
 # # comment
-#
 # match: any | all (only allowed once, any is the default)
 # name: fnmatch pattern
 # script: unicode tag
@@ -167,6 +166,8 @@ def parseRules(rules, macros=None):
         line = line.split("#")[0].strip()
         if not line:
             continue
+        if ":" not in line:
+            return f"Invalid syntax: {line}"
         tag, content = line.split(":", 1)
         tag = tag.strip()
         content = content.strip()

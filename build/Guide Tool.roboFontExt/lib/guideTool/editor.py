@@ -6,25 +6,10 @@ from fontParts.fontshell import RGuideline
 from lib.fontObjects.fontPartsWrappers import RGuideline
 from mojo.extensions import getExtensionDefault
 from .defaults import extensionIdentifier
+from .smart import parseRules
 
 numberTextFieldWidth = 50
 noColor = (1.0, 1.0, 1.0, 1.0)
-
-"""
-- italic angle button
-- undo state
-
-Issues:
-- window doesn't appear in correct place
-- needs to be easier to get a colorwell to auto fit
-- get item heights and set row height to max of those
-- number value type doesn't work
-- set colorwell color to None
-- radio buttons height in grid
-- pop up button isn't in the doc
-- pull down example
-- action button example
-"""
 
 class GuidelineEditorController(ezui.WindowController):
 
@@ -33,7 +18,8 @@ class GuidelineEditorController(ezui.WindowController):
         self.glyph = glyph
         self.editor = glyphEditor
 
-        self.defaultColors = getExtensionDefault(extensionIdentifier + ".swatchColors")
+        # self.defaultColors = getExtensionDefault(extensionIdentifier + ".swatchColors")
+        self.defaultColors = [(1, 0, 0, 1)]
 
         # level: radio buttons
         levelDescription = dict(
@@ -95,6 +81,11 @@ class GuidelineEditorController(ezui.WindowController):
                 dict(
                     type="Label",
                     text="°"
+                ),
+                dict(
+                    identifier="italicAnglePushButton",
+                    type="PushButton",
+                    text="Italic Angle",
                 )
             ]
         )
@@ -165,6 +156,15 @@ class GuidelineEditorController(ezui.WindowController):
             value=guideline.showMeasurements
         )
 
+        # rules
+        rulesDescription = dict(
+            identifier="rules",
+            type="TextEditor",
+            text="",
+            width=175,
+            height=100
+        )
+
         # window
         windowContent = dict(
             identifier="guidelineForm",
@@ -203,6 +203,11 @@ class GuidelineEditorController(ezui.WindowController):
                 dict(
                     type="Item",
                     itemDescription=measurementDescription
+                ),
+                dict(
+                    type="Item",
+                    text="Rules:",
+                    itemDescription=rulesDescription
                 )
             ]
         )
@@ -216,9 +221,26 @@ class GuidelineEditorController(ezui.WindowController):
             windowDescription,
             controller=self
         )
+        self.enableRulesEditor(startup=True)
 
     def started(self):
         self.w.open()
+
+    def enableRulesEditor(self, startup=False):
+        rulesEditor = self.w.findItem("rules")
+        editable = self.guideline.glyph is None
+        if not startup:
+            if rulesEditor.getNSTextView().isEditable() == editable:
+                return
+        if not editable:
+            rules = ""
+        else:
+            rules = self.guideline.naked().lib.get(
+                extensionIdentifier + ".rules",
+                ""
+            )
+        rulesEditor.set(rules)
+        rulesEditor.getNSTextView().setEditable_(editable)
 
     def colorSwatchesPullDownButtonCallback(self, sender):
         button = self.w.findItem("colorSwatchesPullDownButton")
@@ -233,6 +255,14 @@ class GuidelineEditorController(ezui.WindowController):
         if color is None:
             color = noColor
         colorWell.set(color)
+        form = self.w.findItem("guidelineForm")
+        self.guidelineFormCallback(form)
+
+    def italicAnglePushButtonCallback(self, sender):
+        angleTextField = self.w.findItem("angleTextField")
+        angle = self.glyph.font.info.italicAngle
+        angle += 90
+        angleTextField.set(angle)
         form = self.w.findItem("guidelineForm")
         self.guidelineFormCallback(form)
 
@@ -252,6 +282,7 @@ class GuidelineEditorController(ezui.WindowController):
         color = data["colorColorWell"]
         magnetic = data["magneticSlider"]
         measurements = data["measurementsCheckbox"]
+        rules = data["rules"]
         if color == noColor:
             color = None
         if isGlobal != wantsGlobal:
@@ -272,9 +303,22 @@ class GuidelineEditorController(ezui.WindowController):
         guideline.color = color
         guideline.magnetic = magnetic
         guideline.showMeasurements = measurements
+        if wantsGlobal:
+            parsed = parseRules(rules, macros={})
+            if isinstance(parsed, str):
+                print(parsed)
+            else:
+                guideline.naked().lib[
+                    extensionIdentifier + ".rules"
+                ] = rules
+        self.enableRulesEditor()
+
 
 
 if __name__ == "__main__":
+    from defaults import extensionIdentifier
+    from smart import parseRules
+
     editor = CurrentGlyphWindow()
     glyph = CurrentGlyph()
     font = glyph.font

@@ -5,30 +5,11 @@ from mojo.UI import getDefault, CurrentGlyphWindow
 from fontParts.fontshell import RGuideline
 from lib.fontObjects.fontPartsWrappers import RGuideline
 from mojo.extensions import getExtensionDefault
-try:
-    from .defaults import extensionIdentifier
-    from .smart import parseRules
-except ModuleNotFoundError:
-    pass
+from .defaults import extensionIdentifier
+from .smart import parseRules
 
 numberTextFieldWidth = 50
 noColor = (1.0, 1.0, 1.0, 1.0)
-
-"""
-- italic angle button
-- undo state
-
-Issues:
-- window doesn't appear in correct place
-- needs to be easier to get a colorwell to auto fit
-- get item heights and set row height to max of those
-- number value type doesn't work
-- set colorwell color to None
-- radio buttons height in grid
-- pop up button isn't in the doc
-- pull down example
-- action button example
-"""
 
 class GuidelineEditorController(ezui.WindowController):
 
@@ -100,6 +81,11 @@ class GuidelineEditorController(ezui.WindowController):
                 dict(
                     type="Label",
                     text="°"
+                ),
+                dict(
+                    identifier="italicAnglePushButton",
+                    type="PushButton",
+                    text="Italic Angle",
                 )
             ]
         )
@@ -269,6 +255,14 @@ class GuidelineEditorController(ezui.WindowController):
         if color is None:
             color = noColor
         colorWell.set(color)
+        form = self.w.findItem("guidelineForm")
+        self.guidelineFormCallback(form)
+
+    def italicAnglePushButtonCallback(self, sender):
+        angleTextField = self.w.findItem("angleTextField")
+        angle = self.glyph.font.info.italicAngle
+        angle += 90
+        angleTextField.set(angle)
         form = self.w.findItem("guidelineForm")
         self.guidelineFormCallback(form)
 

@@ -20,3 +20,15 @@ Prefs:
 - want italic angle
 - color swatches
 - macros
+
+Rule Syntax:
+
+```
+# comment
+match: any | all (only allowed once, any is the default)
+name: fnmatch pattern
+script: unicode tag
+category: unicode tag
+group: fnmatch pattern
+macro: name
+```
