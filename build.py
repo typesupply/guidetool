@@ -11,6 +11,11 @@ pycOnly = False
 menuItems = [
     # - prefs
     dict(
+        path="menu_showPrefs.py",
+        preferredName="Edit Preferences",
+        shortKey=""
+    ),
+    dict(
         path="menu_addGlyphGuideline.py",
         preferredName="Add Glyph Guide",
         shortKey=("g", "shift", "control")

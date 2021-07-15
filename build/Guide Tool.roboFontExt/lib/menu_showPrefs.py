@@ -1,0 +1,4 @@
+from mojo.roboFont import OpenWindow
+from guideTool.defaults import GuideToolDefaultsWindowController
+
+OpenWindow(GuideToolDefaultsWindowController)

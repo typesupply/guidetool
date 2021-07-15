@@ -5,6 +5,7 @@ from mojo.UI import getDefault, CurrentGlyphWindow
 from fontParts.fontshell import RGuideline
 from lib.fontObjects.fontPartsWrappers import RGuideline
 from mojo.extensions import getExtensionDefault
+from mojo.events import postEvent
 from .defaults import extensionIdentifier
 from .smart import parseRules
 
@@ -18,8 +19,7 @@ class GuidelineEditorController(ezui.WindowController):
         self.glyph = glyph
         self.editor = glyphEditor
 
-        # self.defaultColors = getExtensionDefault(extensionIdentifier + ".swatchColors")
-        self.defaultColors = [(1, 0, 0, 1)]
+        self.defaultColors = getExtensionDefault(extensionIdentifier + ".swatchColors")
 
         # level: radio buttons
         levelDescription = dict(
@@ -314,6 +314,10 @@ class GuidelineEditorController(ezui.WindowController):
                     extensionIdentifier + ".rules"
                 ] = rules
         self.enableRulesEditor()
+        postEvent(
+            extensionIdentifier + ".guidelineEditedInEditor",
+            guideline=self.guideline
+        )
 
 
 

@@ -6,6 +6,14 @@
 	<array>
 		<dict>
 			<key>path</key>
+			<string>menu_showPrefs.py</string>
+			<key>preferredName</key>
+			<string>Edit Preferences</string>
+			<key>shortKey</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>path</key>
 			<string>menu_addGlyphGuideline.py</string>
 			<key>preferredName</key>
 			<string>Add Glyph Guide</string>
@@ -44,7 +52,7 @@
 	<key>requiresVersionMinor</key>
 	<string>0</string>
 	<key>timeStamp</key>
-	<real>1625793165.0174809</real>
+	<real>1626309583.3461602</real>
 	<key>version</key>
 	<string>1.0.0.a1</string>
 </dict>

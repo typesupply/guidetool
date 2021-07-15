@@ -1,7 +1,8 @@
 from mojo.subscriber import Subscriber, registerGlyphEditorSubscriber
 from mojo.extensions import getExtensionDefault
+from mojo.events import addObserver, removeObserver
 from .defaults import extensionIdentifier
-from .smart import parseRules, matchGlyphRules
+from .smart import parseRules, matchGlyphRules, parseMacros
 
 class GuideToolSubscriber(Subscriber):
 
@@ -9,12 +10,27 @@ class GuideToolSubscriber(Subscriber):
 
     def build(self):
         self.loadDefaults()
+        addObserver(
+            self,
+            "extensionDefaultsChanged",
+            extensionIdentifier + ".defaultsChanged"
+        )
+
+    def destroy(self):
+        removeObserver(
+            self,
+            extensionIdentifier + ".defaultsChanged"
+        )
 
     def loadDefaults(self):
-        self.macros = getExtensionDefault(extensionIdentifier + ".smartMacros")
+        macros = getExtensionDefault(extensionIdentifier + ".smartMacros")
+        self.macros = parseMacros(macros)
         self.toggleGuidelines()
 
     def roboFontDidChangePreferences(self, info):
+        self.loadDefaults()
+
+    def extensionDefaultsChanged(self, event):
         self.loadDefaults()
 
     def glyphEditorDidSetGlyph(self, info):
@@ -40,10 +56,6 @@ class GuideToolSubscriber(Subscriber):
                 guideline.visible = matchGlyphRules(rules, glyph)
             except AttributeError:
                 pass
-
-
-
-
 
 
 def main():

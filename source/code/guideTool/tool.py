@@ -4,7 +4,7 @@ import AppKit
 import defcon
 from booleanOperations.booleanGlyph import BooleanGlyph
 from lib.tools import bezierTools
-from mojo.events import installTool, BaseEventTool, extractNSEvent
+from mojo.events import installTool, BaseEventTool, extractNSEvent, addObserver
 from mojo.UI import getDefault
 from mojo.extensions import getExtensionDefault
 from .editor import GuidelineEditorController
@@ -56,6 +56,16 @@ class GuidelineTool(BaseEventTool):
         self.snapToPointsLayer = container.appendBaseSublayer(
             name="snapIndicator"
         )
+        addObserver(
+            self,
+            "extensionDefaultsChanged",
+            extensionIdentifier + ".defaultsChanged"
+        )
+        addObserver(
+            self,
+            "guidelineEditedInEditor",
+            extensionIdentifier + ".guidelineEditedInEditor"
+        )
 
     def loadDefaults(self):
         self.colorMarquee = getDefault("glyphViewSelectionMarqueColor")
@@ -87,6 +97,10 @@ class GuidelineTool(BaseEventTool):
     def preferencesChanged(self):
         self.loadDefaults()
         self.marqueeLayer.setFillColor(self.colorMarquee)
+
+    def extensionDefaultsChanged(self, event):
+        self.loadDefaults()
+        self.updateSelectedGuidelineColors()
 
     def currentGlyphChanged(self):
         self.deselectAll()
@@ -194,6 +208,21 @@ class GuidelineTool(BaseEventTool):
                         strokeColor=color,
                         strokeWidth=self.highlightStrokeWidth
                     )
+
+    def guidelineEditedInEditor(self, event):
+        guideline = event["guideline"]
+        if guideline in self.selectedGuidelines:
+            self.displaySelectedGuidelines()
+
+    def updateSelectedGuidelineColors(self):
+        for guideline, layer in self.selectedGuidelineLayers.items():
+            color = getGuidelineHighlightColor(
+                guideline,
+                self.colorFontGuideline,
+                self.colorGlyphGuideline,
+                self.highlightAlphaScale
+            )
+            layer.setStrokeColor(color)
 
     def displayMarquee(self, point=None):
         skip = False

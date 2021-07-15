@@ -324,6 +324,23 @@ def matchPattern(string, pattern):
     """
     return fnmatch.fnmatch(string, pattern)
 
+def parseMacros(text):
+    macros = {}
+    current = None
+    for line in text.splitlines():
+        line = line.split("#")[0].strip()
+        if not line:
+            continue
+        if line.startswith(">"):
+            current = line[1:].strip()
+            macros[current] = []
+        else:
+            macros[current].append(line)
+    for name, lines in macros.items():
+        rules = parseRules("\n".join(lines))
+        assert isinstance(rules, dict)
+        macros[name] = rules
+    return macros
 
 # Test
 # ----
