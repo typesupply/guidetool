@@ -8,7 +8,7 @@ from mojo.extensions import (
 )
 from mojo.events import postEvent
 import objc
-objc.setVerbose(True)
+objc.options.verbose = True
 
 extensionIdentifier = "com.typesupply.GuideTool"
 
