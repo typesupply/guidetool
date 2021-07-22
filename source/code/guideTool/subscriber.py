@@ -3,6 +3,7 @@ from mojo.extensions import getExtensionDefault
 from mojo.events import addObserver, removeObserver
 from .defaults import extensionIdentifier
 from .smart import parseRules, matchGlyphRules, parseMacros
+from .compatibility import getGuidelineLibValue
 
 class GuideToolSubscriber(Subscriber):
 
@@ -43,9 +44,7 @@ class GuideToolSubscriber(Subscriber):
             return
         font = glyph.font
         for guideline in font.guidelines:
-            if hasattr(guideline, "naked"):
-                guideline = guideline.naked()
-            rules = guideline.lib.get(extensionIdentifier + ".rules")
+            rules = getGuidelineLibValue(guideline, extensionIdentifier + ".rules")
             if not rules:
                 continue
             rules = parseRules(

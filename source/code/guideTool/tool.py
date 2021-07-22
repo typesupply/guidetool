@@ -500,9 +500,10 @@ class GuidelineTool(BaseEventTool):
         if self.inRectSelection:
             self.selectedGuidelines = self.findGuidelinesIntersectedBySelectionRect()
         # close undo coalescing
-        for obj in self.mouseSequenceUndoCoalescing:
-            if obj is not None:
-                obj.performUndo()
+        if self.mouseSequenceUndoCoalescing:
+            for obj in self.mouseSequenceUndoCoalescing:
+                if obj is not None:
+                    obj.performUndo()
         # update the stored states after the drag
         # in case the user begins another drag with
         # the same selection

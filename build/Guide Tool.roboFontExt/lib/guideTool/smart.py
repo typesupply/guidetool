@@ -42,6 +42,7 @@ def parseRules(rules, macros=None):
     ...     "name: ABC*"
     ... )
     >>> _dump(r)
+    matchType: any
     names: ABC*
 
     >>> r = parseRules(
@@ -51,6 +52,7 @@ def parseRules(rules, macros=None):
     ...     '''
     ... )
     >>> _dump(r)
+    matchType: any
     names: ABC* | XYZ?
 
     # script
@@ -59,6 +61,7 @@ def parseRules(rules, macros=None):
     ...     "script: ABC"
     ... )
     >>> _dump(r)
+    matchType: any
     scripts: ABC
 
     >>> r = parseRules(
@@ -68,6 +71,7 @@ def parseRules(rules, macros=None):
     ...     '''
     ... )
     >>> _dump(r)
+    matchType: any
     scripts: ABC | XYZ
 
     # category
@@ -77,6 +81,7 @@ def parseRules(rules, macros=None):
     ... )
     >>> _dump(r)
     categories: ABC
+    matchType: any
 
     >>> r = parseRules(
     ...     '''
@@ -86,6 +91,7 @@ def parseRules(rules, macros=None):
     ... )
     >>> _dump(r)
     categories: ABC | XYZ
+    matchType: any
 
     # group
 
@@ -94,6 +100,7 @@ def parseRules(rules, macros=None):
     ... )
     >>> _dump(r)
     groups: ABC*
+    matchType: any
 
     >>> r = parseRules(
     ...     '''
@@ -103,6 +110,7 @@ def parseRules(rules, macros=None):
     ... )
     >>> _dump(r)
     groups: ABC* | XYZ?
+    matchType: any
 
     # macro
     >>> macros = dict(
@@ -137,6 +145,7 @@ def parseRules(rules, macros=None):
     >>> _dump(r)
     categories: category1 | category2
     groups: group1 | group2
+    matchType: any
     names: name1 | name2
     scripts: script1 | script2
 
@@ -153,11 +162,12 @@ def parseRules(rules, macros=None):
     >>> _dump(r)
     categories: aCategory | category1 | category2
     groups: aGroup | group1 | group2
+    matchType: any
     names: aName | name1 | name2
     scripts: aScript | script1 | script2
     """
     allowMacros = macros is not None
-    matchType = None
+    matchType = "any"
     names = set()
     scripts = set()
     categories = set()
@@ -369,6 +379,7 @@ def _dump(d):
             value = " | ".join(sorted(value))
         lines.append(f"{key}: {value}")
     print("\n".join(lines))
+
 
 if __name__ == "__main__":
     import doctest

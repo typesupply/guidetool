@@ -117,7 +117,7 @@ if errors:
 
 if installAfterBuild:
     print("Installing extension...", end=" ")
-    installDirectory = os.path.expanduser("~/Library/Application Support/RoboFont/plugins4")
+    installDirectory = os.path.expanduser("~/Library/Application Support/RoboFont/plugins")
     installPath = os.path.join(installDirectory, extensionFile)
     if os.path.exists(installPath):
         shutil.rmtree(installPath)

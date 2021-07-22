@@ -8,6 +8,7 @@ from mojo.extensions import getExtensionDefault
 from mojo.events import postEvent
 from .defaults import extensionIdentifier
 from .smart import parseRules
+from .compatibility import getGuidelineLibValue, setGuidelineLibValue
 
 numberTextFieldWidth = 50
 noColor = (1.0, 1.0, 1.0, 1.0)
@@ -237,7 +238,8 @@ class GuidelineEditorController(ezui.WindowController):
         if not editable:
             rules = ""
         else:
-            rules = self.guideline.naked().lib.get(
+            rules = getGuidelineLibValue(
+                self.guideline,
                 extensionIdentifier + ".rules",
                 ""
             )
@@ -316,11 +318,15 @@ class GuidelineEditorController(ezui.WindowController):
         if wantsGlobal:
             parsed = parseRules(rules, macros={})
             if isinstance(parsed, str):
-                print(parsed)
+                # XXX mark the text as invalid
+                # parsed will be an error string
+                pass
             else:
-                guideline.naked().lib[
-                    extensionIdentifier + ".rules"
-                ] = rules
+                setGuidelineLibValue(
+                    guideline,
+                    extensionIdentifier + ".rules",
+                    rules
+                )
         self.enableRulesEditor()
         postEvent(
             extensionIdentifier + ".guidelineEditedInEditor",
