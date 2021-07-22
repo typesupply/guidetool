@@ -221,6 +221,8 @@ class GuidelineEditorController(ezui.WindowController):
             windowDescription,
             controller=self
         )
+        self.haveStartedUndo = False
+        self.previousData = self.w.get()["guidelineForm"]
         self.enableRulesEditor(startup=True)
 
     def started(self):
@@ -274,6 +276,12 @@ class GuidelineEditorController(ezui.WindowController):
         guideline = self.guideline
         isGlobal = guideline.naked().isGlobal
         data = self.w.get()["guidelineForm"]
+        if data == self.previousData:
+            return
+        self.previousData = data
+        if not self.haveStartedUndo:
+            guideline.naked().prepareUndo("Change Guideline")
+            self.haveStartedUndo = True
         wantsGlobal = not data["levelRadioButtons"]
         name = data["nameTextField"]
         if not name:
@@ -319,6 +327,9 @@ class GuidelineEditorController(ezui.WindowController):
             guideline=self.guideline
         )
 
+    def windowWillClose(self, sender):
+        if self.haveStartedUndo:
+            self.guideline.naked().performUndo()
 
 
 if __name__ == "__main__":

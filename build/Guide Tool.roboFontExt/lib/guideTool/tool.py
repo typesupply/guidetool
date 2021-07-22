@@ -33,6 +33,7 @@ class GuidelineTool(BaseEventTool):
     mouseDownPoint = None
     snappingToThesePoints = []
     snapToPointSymbolColor = None
+    mouseSequenceUndoCoalescing = None
 
     wantItalicAngle = True
     wantsSnapToPoint = True
@@ -266,6 +267,7 @@ class GuidelineTool(BaseEventTool):
         return ((vX, vY), (vW, vH))
 
     def mouseDown(self, point, clickCount):
+        self.mouseSequenceUndoCoalescing = set()
         shouldIgnoreFollowingMouseEvents = False
         self.mouseDownPoint = point
         self.isDraggingGuidelines = False
@@ -318,12 +320,15 @@ class GuidelineTool(BaseEventTool):
                 dest = self.getGlyph()
                 if commandDown:
                     dest = dest.font
-                dest.prepareUndo("Add guideline")
+                # XXX can't put an undo state for this on the font
+                if not commandDown:
+                    if dest not in self.mouseSequenceUndoCoalescing:
+                        dest.prepareUndo("Add guideline")
+                        self.mouseSequenceUndoCoalescing.add(dest)
                 guideline = dest.appendGuideline(
                     position=(x, y),
                     angle=angle
                 )
-                dest.performUndo()
                 self.selectedGuidelines = {
                     guideline : getGuidelineState(guideline)
                 }
@@ -336,12 +341,15 @@ class GuidelineTool(BaseEventTool):
                 dest = self.getGlyph()
                 if commandDown:
                     dest = dest.font
-                dest.prepareUndo("Add guideline")
+                # XXX can't put an undo state for this on the font
+                if not commandDown:
+                    if dest not in self.mouseSequenceUndoCoalescing:
+                        dest.prepareUndo("Move guideline")
+                        self.mouseSequenceUndoCoalescing.add(dest)
                 guideline = dest.appendGuideline(
                     position=(x, y),
                     angle=angle
                 )
-                dest.performUndo()
                 self.selectedGuidelines = {
                     guideline : getGuidelineState(guideline)
                 }
@@ -407,7 +415,10 @@ class GuidelineTool(BaseEventTool):
             # origin editing
             if commandDown and len(self.selectedGuidelines) == 1:
                 guideline = self.selectedGuideline
-                guideline.naked().prepareUndo("Move Guideline")
+                parent = getGuidelineParentForUndo(guideline)
+                if parent not in self.mouseSequenceUndoCoalescing:
+                    self.mouseSequenceUndoCoalescing.add(parent)
+                    parent.prepareUndo("Move Guideline")
                 x, y = point
                 x = bezierTools.roundValue(x, self.roundValuesTo)
                 y = bezierTools.roundValue(y, self.roundValuesTo)
@@ -418,7 +429,10 @@ class GuidelineTool(BaseEventTool):
                 x, y = point
                 guideline = self.selectedGuideline
                 if bezierTools.distanceFromPointToPoint((guideline.x, guideline.y), (x, y)) > 5:
-                    guideline.naked().prepareUndo("Move Guideline")
+                    parent = getGuidelineParentForUndo(guideline)
+                    if parent not in self.mouseSequenceUndoCoalescing:
+                        self.mouseSequenceUndoCoalescing.add(parent)
+                        parent.prepareUndo("Change Guideline Angle")
                     guideline.angle = bezierTools.calculateAngle(
                         (guideline.x, guideline.y),
                         (x, y)
@@ -443,7 +457,10 @@ class GuidelineTool(BaseEventTool):
                 if snapTo:
                     snapTo = len(self.selectedGuidelines) == 1
                 for guideline, state in self.selectedGuidelines.items():
-                    guideline.naked().prepareUndo("Move Guideline")
+                    parent = getGuidelineParentForUndo(guideline)
+                    if parent not in self.mouseSequenceUndoCoalescing:
+                        self.mouseSequenceUndoCoalescing.add(parent)
+                        parent.prepareUndo("Move Guideline")
                     x = state.x
                     y = state.y
                     angle = state.angle
@@ -482,15 +499,22 @@ class GuidelineTool(BaseEventTool):
         # marquee selection
         if self.inRectSelection:
             self.selectedGuidelines = self.findGuidelinesIntersectedBySelectionRect()
-        # dragging
-        elif self.isDraggingGuidelines:
-            for guideline, state in self.selectedGuidelines.items():
-                if state != getGuidelineState(guideline):
-                    guideline.naked().performUndo()
+        # close undo coalescing
+        for obj in self.mouseSequenceUndoCoalescing:
+            if obj is not None:
+                obj.performUndo()
+        # update the stored states after the drag
+        # in case the user begins another drag with
+        # the same selection
+        self.selectedGuidelines = {
+            guideline : getGuidelineState(guideline)
+            for guideline in self.selectedGuidelines.keys()
+        }
         self.inRectSelection = False
         self.isDraggingGuidelines = False
         self.mouseDownPoint = None
         self.snappingToThesePoints = []
+        self.mouseSequenceUndoCoalescing = None
         self.displaySnapToPoints()
         self.displaySelectedGuidelines()
         self.displayMarquee()
@@ -517,15 +541,13 @@ class GuidelineTool(BaseEventTool):
                     else:
                         fontGuidelines.append(guideline)
                 if glyphGuidelines:
-                    glyph.prepareUndo("Delete Guidelines")
-                    for guideline in glyphGuidelines:
-                        glyph.removeGuideline(guideline)
-                    glyph.performUndo()
+                    with glyph.undo("Delete Guidelines"):
+                        for guideline in glyphGuidelines:
+                            glyph.removeGuideline(guideline)
                 if fontGuidelines:
-                    font.prepareUndo("Delete Guidelines")
-                    for guideline in fontGuidelines:
-                        font.removeGuideline(guideline)
-                    font.performUndo()
+                    with font.undo("Delete Guidelines"):
+                        for guideline in fontGuidelines:
+                            font.removeGuideline(guideline)
                 self.selectedGuidelines = {}
             else:
                 arrowUp = event["up"]
@@ -825,6 +847,11 @@ def scaleColorAlpha(color, scale):
     r, g, b, a = color
     a *= scale
     return (r, g, b, a)
+
+def getGuidelineParentForUndo(guideline):
+    if guideline.glyph is not None:
+        return guideline.glyph
+    return guideline.naked()
 
 # Factories
 

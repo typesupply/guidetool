@@ -14,9 +14,8 @@ def run():
     if data is None:
         AppKit.NSBeep()
         return
-    font.prepareUndo("Add Guide")
-    guideline = font.appendGuideline(**data)
-    font.performUndo()
+    with font.undo("Add Guide"):
+        guideline = font.appendGuideline(**data)
     GuidelineEditorController(guideline, glyph, editor.getGlyphView())
 
 if __name__ == "__main__":

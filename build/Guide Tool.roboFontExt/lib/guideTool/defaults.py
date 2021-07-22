@@ -7,8 +7,6 @@ from mojo.extensions import (
     removeExtensionDefault
 )
 from mojo.events import postEvent
-import objc
-objc.setVerbose(True)
 
 extensionIdentifier = "com.typesupply.GuideTool"
 
