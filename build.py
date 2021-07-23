@@ -3,7 +3,7 @@
 # -----------------
 
 name = "Guide Tool"
-version = "1.0.0.a1"
+version = "1.0"
 developer = "Type Supply"
 developerURL = "http://typesupply.com"
 roboFontVersion = "4.0"
