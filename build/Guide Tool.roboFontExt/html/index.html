@@ -8,32 +8,100 @@
         
         </head>
         <body>
-        <p>Tool:</p>
+        <h1 id="guide-tool">Guide Tool</h1>
+<p>This is a tool for creating, modifying guides and making them smart.</p>
+<h2 id="guide-editing-tool">Guide Editing Tool</h2>
+<p>The guide editing tool appears with the other editing tools in the glyph editor toolbar.</p>
+<h3 id="to-create-a-guide">To create a guide...</h3>
 <ul>
-<li>drag new guide from edges (command makes it font level)</li>
-<li>double click anywhere there isn't a guide to create a guide</li>
-<li>command makes it font level</li>
-<li>option makes it vertical</li>
-<li>marquee to select guides</li>
-<li>click guide to select</li>
-<li>drag to move selected guides</li>
-<li>command moves the origin</li>
-<li>option changes the angle</li>
-<li>arrows keys to move selected guides</li>
-<li>double click a guide to edit</li>
-<li>return brings up editor if one guide is selected</li>
-<li>control click to get some clear and convert options</li>
+<li>Click and drag from the edges of the glyph editor. Starting at the top and bottom will create a horizontal guide. Starting at the left or right will create a vertical guide. If a "snap to" preference is active, nearby points will be used for to help determine the guide's position.</li>
+<li>Double click where you want a horizontal guide to be created.</li>
+<li>Hold the option key and double-click where you want a horizontal vertical to be created.</li>
+<li>Hold down the command key during a click + drag or a double-click to create a font-level guide.</li>
 </ul>
-<p>Rule Syntax:</p>
-<div class="codehilite"><pre><span></span><code># comment
-&gt; macro title (only allowed in prefs window)
-match: any | all (only allowed once, any is the default)
-name: fnmatch pattern
-script: unicode tag
-category: unicode tag
-group: fnmatch pattern
-macro: name
+<h3 id="to-select-a-guide">To select a guide...</h3>
+<ul>
+<li>Click the guide you want to select.</li>
+<li>Mouse down and drag to create a selection rectangle. Any guide intersecting the rectangle will be selected.</li>
+<li>Use the shift key to add/subtract from the selection.</li>
+</ul>
+<p>Selected guides will have a selection "glow" around them.</p>
+<h3 id="to-move-a-guide">To move a guide...</h3>
+<ul>
+<li>Click and drag a guide. If a "snap to" preference is active, nearby points will be used for to help determine the guide's position.</li>
+<li>Drag a selected guide. If more than one guide is selected, all guides will be moved. If a "snap to" preference is active, nearby points will be used for to help determine the guide's position.</li>
+<li>Use the arrow keys to move the selected guides.</li>
+</ul>
+<h3 id="to-change-the-origin-point-of-a-guide">To change the origin point of a guide...</h3>
+<ul>
+<li>Click to select a guide and, while dragging, hold the command key.</li>
+</ul>
+<h3 id="to-change-the-angle-of-a-guide">To change the angle of a guide....</h3>
+<ul>
+<li>Click to select a guide and, while dragging, hold the option key.</li>
+</ul>
+<h3 id="to-delete-a-guide">To delete a guide...</h3>
+<ul>
+<li>Hit the delete key to remove the selected guides.</li>
+</ul>
+<h3 id="to-clear-all-guides">To clear all guides...</h3>
+<ul>
+<li>Hold control and click.</li>
+<li>Select the appropriate "Clear..." option.</li>
+</ul>
+<h3 id="to-convert-a-font-level-guide-to-a-glyph-level-guide-or-vice-versa">To convert a font-level guide to a glyph-level guide or vice-versa...</h3>
+<ul>
+<li>Select the guides you want to convert.</li>
+<li>Hold the control and click.</li>
+<li>Choose the appropriate "Convert..." option.</li>
+</ul>
+<h3 id="to-open-the-guide-editor-pop-up">To open the guide editor pop up...</h3>
+<ul>
+<li>Select the guide you want to edit.</li>
+<li>Hit the return key.</li>
+</ul>
+<h2 id="guide-from-selected-points">Guide From Selected Points</h2>
+<p>With the standard RoboFont editing tool active:</p>
+<ul>
+<li>Use the control + option + G key combination to create a guide. If one point is selected, a horizontal guide will be created at the y position of the selected point. If two points are selected the guide will match the angle between the two points.</li>
+<li>Use the command + control + option + G key combination to create a font-level guide.</li>
+</ul>
+<p>The guide editor pop up will appear and allow you to edit the details of the guide.</p>
+<h2 id="guide-editor-pop-up">Guide Editor Pop Up</h2>
+<p>The guide editor pop up will allow you to edit a guide's:</p>
+<ul>
+<li>Level (font or glyph)</li>
+<li>Name</li>
+<li>Position</li>
+<li>Angle</li>
+<li>Color</li>
+<li>Magnetism</li>
+<li>Measurement Display</li>
+<li>Smart Rules</li>
+</ul>
+<h2 id="smart-guides">Smart Guides</h2>
+<p><strong>Note: This is experimental but also awesome.</strong></p>
+<p>Guides can be set to only be visible when certain conditions are met by a glyph. For example, you can specify that a guide should only be shown in uppercase glyphs. This is managed by creating rules for a guide in the guide editor pop up. The rules are defined with a simple syntax:</p>
+<div class="codehilite"><pre><span></span><code><span class="cp"># comment</span>
+<span class="o">&gt;</span> <span class="n">macro</span> <span class="n">name</span> <span class="p">(</span><span class="n">only</span> <span class="n">allowed</span> <span class="k">in</span> <span class="n">preferences</span> <span class="n">window</span><span class="p">)</span>
+<span class="nl">match</span><span class="p">:</span> <span class="n">any</span> <span class="n">or</span> <span class="n">all</span> <span class="p">(</span><span class="n">only</span> <span class="n">allowed</span> <span class="n">once</span><span class="p">,</span> <span class="n">any</span> <span class="n">is</span> <span class="n">the</span> <span class="k">default</span><span class="p">)</span>
+<span class="nl">name</span><span class="p">:</span> <span class="p">[</span><span class="n">fnmatch</span> <span class="n">pattern</span><span class="p">](</span><span class="nl">https</span><span class="p">:</span><span class="c1">//docs.python.org/3/library/fnmatch.html) that will be tested against glyph names</span>
+<span class="nl">script</span><span class="p">:</span> <span class="n">unicode</span> <span class="n">tag</span>
+<span class="nl">category</span><span class="p">:</span> <span class="n">unicode</span> <span class="n">tag</span>
+<span class="nl">group</span><span class="p">:</span> <span class="p">[</span><span class="n">fnmatch</span> <span class="n">pattern</span><span class="p">](</span><span class="nl">https</span><span class="p">:</span><span class="c1">//docs.python.org/3/library/fnmatch.html) that will be tested against group names</span>
+<span class="nl">macro</span><span class="p">:</span> <span class="n">name</span>
 </code></pre></div>
+
+<p>A macro is a shortcut defined in the Guide Tool preferences. If a macro name matches one defined in the preferences, the guide's rules will include the rules defined by the macro. This allows you to define your rules at the application level and use them for any number of guides.</p>
+<h2 id="preferences">Preferences</h2>
+<p>In the Guide Tool Preferences you can edit:</p>
+<ul>
+<li>Selection Highlight: The opacity of the highlight used to show selected guides.</li>
+<li>Snap To: When dragging a guide, if any of the "snap to" options is active, the guide will be snapped to nearby points. "Point" will snap to points defined in the glyph. "Future Point" will snap to points that will exist if a "remove overlap" operation would be performed on the current state of the glyph.</li>
+<li>Vertical Angle: The angle to use when creating a vertical guide.</li>
+<li>Colors: The standard color swatches available to apply to guides.</li>
+<li>Macros: The macro definitions for smart guides. These use the same syntax as defined above.</li>
+</ul>
         </body>
         </html>
         
