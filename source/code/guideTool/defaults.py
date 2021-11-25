@@ -141,6 +141,7 @@ defaults = {
     "smartMacros" : defaultMacros,
     "snapToPoint" : True,
     "snapToFuturePoint" : True,
+    "hapticFeedbackOnSnapTo" : True,
     "wantItalicAngle" : True,
     "highlightAlphaScale" : 0.15,
     "swatchColors" : [
@@ -195,6 +196,11 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
                     identifier="snapToFuturePoint",
                     text="Future Point",
                     value=settings["snapToFuturePoint"],
+                ),
+                dict(
+                    identifier="hapticFeedbackOnSnapTo",
+                    text="Use haptic feedback.",
+                    value=settings["hapticFeedbackOnSnapTo"],
                 )
             ]
         )
