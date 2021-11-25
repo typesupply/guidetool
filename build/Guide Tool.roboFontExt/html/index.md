@@ -101,7 +101,7 @@ A macro is a shortcut defined in the Guide Tool preferences. If a macro name mat
 In the Guide Tool Preferences you can edit:
 
 - Selection Highlight: The opacity of the highlight used to show selected guides.
-- Snap To: When dragging a guide, if any of the "snap to" options is active, the guide will be snapped to nearby points. "Point" will snap to points defined in the glyph. "Future Point" will snap to points that will exist if a "remove overlap" operation would be performed on the current state of the glyph.
+- Snap To: When dragging a guide, if any of the "snap to" options is active, the guide will be snapped to nearby points. "Point" will snap to points defined in the glyph. "Future Point" will snap to points that will exist if a "remove overlap" operation would be performed on the current state of the glyph. "Use haptic feedback." will trigger haptic feedback when a guide is snapped to a point.
 - Vertical Angle: The angle to use when creating a vertical guide.
 - Colors: The standard color swatches available to apply to guides.
 - Macros: The macro definitions for smart guides. These use the same syntax as defined above.

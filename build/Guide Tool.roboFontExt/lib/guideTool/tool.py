@@ -87,6 +87,7 @@ class GuidelineTool(BaseEventTool):
         self.wantItalicAngle = getExtensionDefault(extensionIdentifier + ".wantItalicAngle")
         self.wantsSnapToPoint = getExtensionDefault(extensionIdentifier + ".snapToPoint")
         self.wantsSnapToFuturePoints = getExtensionDefault(extensionIdentifier + ".snapToFuturePoint")
+        self.wantsHapticFeedbackOnSnapTo = getExtensionDefault(extensionIdentifier + ".hapticFeedbackOnSnapTo")
         self.highlightAlphaScale = getExtensionDefault(extensionIdentifier + ".highlightAlphaScale")
 
     def getToolbarIcon(self):
@@ -155,6 +156,12 @@ class GuidelineTool(BaseEventTool):
                         )
                     for symbol in remove:
                         container.removeSublayer(symbol)
+            if needed and self.wantsHapticFeedbackOnSnapTo:
+                performer = AppKit.NSHapticFeedbackManager.defaultPerformer()
+                performer.performFeedbackPattern_performanceTime_(
+                    AppKit.NSHapticFeedbackPatternAlignment,
+                    AppKit.NSHapticFeedbackPerformanceTimeDefault
+                )
 
     def displaySelectedGuidelines(self):
         container = self.selectionIndicatorLayer
