@@ -92,6 +92,9 @@ class GuidelineTool(BaseEventTool):
 
     def getToolbarIcon(self):
         return guideToolToolbarIcon
+    
+    def getToolbarTip(self):
+        return 'Guide Tool'
 
     def getDefaultCursor(self):
         return guideToolCursor
