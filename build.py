@@ -3,16 +3,15 @@
 # -----------------
 
 name = "Guide Tool"
-version = "1.1"
+version = "1.2"
 developer = "Type Supply"
 developerURL = "http://typesupply.com"
-roboFontVersion = "4.0"
+roboFontVersion = "4.2"
 pycOnly = False
 menuItems = [
-    # - prefs
     dict(
-        path="menu_showPrefs.py",
-        preferredName="Edit Preferences",
+        path="menu_showFontGuidelines.py",
+        preferredName="Edit Font Guides",
         shortKey=""
     ),
     dict(
@@ -24,6 +23,12 @@ menuItems = [
         path="menu_addFontGuideline.py",
         preferredName="Add Font Guide",
         shortKey=("g", "shift", "control", "command")
+    ),
+    # - prefs
+    dict(
+        path="menu_showPrefs.py",
+        preferredName="Edit Preferences",
+        shortKey=""
     ),
 ]
 

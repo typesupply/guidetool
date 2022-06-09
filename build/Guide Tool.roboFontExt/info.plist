@@ -6,9 +6,9 @@
 	<array>
 		<dict>
 			<key>path</key>
-			<string>menu_showPrefs.py</string>
+			<string>menu_showFontGuidelines.py</string>
 			<key>preferredName</key>
-			<string>Edit Preferences</string>
+			<string>Edit Font Guides</string>
 			<key>shortKey</key>
 			<string></string>
 		</dict>
@@ -34,6 +34,14 @@
 				<string>g</string>
 			</array>
 		</dict>
+		<dict>
+			<key>path</key>
+			<string>menu_showPrefs.py</string>
+			<key>preferredName</key>
+			<string>Edit Preferences</string>
+			<key>shortKey</key>
+			<string></string>
+		</dict>
 	</array>
 	<key>developer</key>
 	<string>Type Supply</string>
@@ -50,10 +58,10 @@
 	<key>requiresVersionMajor</key>
 	<string>4</string>
 	<key>requiresVersionMinor</key>
-	<string>0</string>
+	<string>2</string>
 	<key>timeStamp</key>
-	<real>1637804178.641191</real>
+	<real>1654811988.6386089</real>
 	<key>version</key>
-	<string>1.1</string>
+	<string>1.2</string>
 </dict>
 </plist>
