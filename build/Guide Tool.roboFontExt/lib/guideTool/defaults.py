@@ -173,139 +173,89 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
 
         itemWidth = 200
 
-        # highlight alpha
-        highlightAlphaScaleDescription = dict(
-            identifier="highlightAlphaScale",
-            type="Slider",
-            minValue=0,
-            maxValue=1.0,
-            value=settings["highlightAlphaScale"]
-        )
+        content = """
+        = TwoColumnForm
 
-        # snap to point
-        snapToDescription = dict(
-            identifier="snapTo",
-            type="Checkboxes",
-            checkboxDescriptions=[
-                dict(
-                    identifier="snapToPoint",
-                    text="Point",
-                    value=settings["snapToPoint"],
-                ),
-                dict(
-                    identifier="snapToFuturePoint",
-                    text="Future Point",
-                    value=settings["snapToFuturePoint"],
-                ),
-                dict(
-                    identifier="hapticFeedbackOnSnapTo",
-                    text="Use haptic feedback.",
-                    value=settings["hapticFeedbackOnSnapTo"],
-                )
-            ]
-        )
+        : Selection Highlight:
+        ---X--- @highlightAlphaScale
 
-        # want italic angle
-        wantItalicAngleDescription = dict(
-            identifier="wantItalicAngle",
-            type="RadioButtons",
-            text=[
-                "90°",
-                "Italic Angle"
-            ],
-            selected=settings["wantItalicAngle"]
-        )
+        : Snap To:
+        [ ] Point                @snapToPoint
+        [ ] Future Point         @snapToFuturePoint
+        [ ] Use haptic feedback. @hapticFeedbackOnSnapTo
 
-        # colors
-        colorsDescription = dict(
-            identifier="colorsTable",
-            type="Table",
-            columnDescriptions=[
-                dict(
-                    identifier="color",
-                    cellDescription=dict(
-                        cellType="ColorWell",
-                    ),
-                    editable=True
-                )
-            ],
-            items=[
-                {
-                    "color" : tuple(color)
-                }
-                for color in settings["swatchColors"]
-            ],
-            footerDescription=[
-                dict(
-                    identifier="colorsTableAddRemoveButton",
-                    type="AddRemoveButton"
-                )
-            ],
-            showColumnTitles=False,
-            width=itemWidth,
-            height=100
-        )
+        : Vertical Angle:
+        ( ) 90°                  @wantItalicAngle
+        ( ) Italic Angle
 
-        # macros
-        macrosDescription = dict(
-            identifier="smartMacros",
-            type="TextEditor",
-            text=settings["smartMacros"],
-            width=itemWidth,
-            height=200
-        )
+        : Colors:
+        |-------|                @colorsTable
+        | color |
+        |-------|
+        > (+-)                   @colorsTableAddRemoveButton
 
-        # window
-        windowContent = dict(
-            identifier="settingsForm",
-            type="TwoColumnForm",
-            contentDescriptions=[
-                dict(
-                    type="Item",
-                    text="Selection Highlight:",
-                    itemDescription=highlightAlphaScaleDescription
-                ),
-                dict(
-                    type="Item",
-                    text="Snap To:",
-                    itemDescription=snapToDescription
-                ),
-                dict(
-                    type="Item",
-                    text="Vertical Angle:",
-                    itemDescription=wantItalicAngleDescription
-                ),
-                dict(
-                    type="Item",
-                    text="Colors:",
-                    itemDescription=colorsDescription
-                ),
-                dict(
-                    type="Item",
-                    text="Macros:",
-                    itemDescription=macrosDescription
-                ),
-            ]
+        : Macros:
+        [[__]]                   @smartMacros
+        """
+        descriptionData = dict(
+            highlightAlphaScale=dict(
+                minValue=0,
+                maxValue=1.0,
+                value=settings["highlightAlphaScale"]
+            ),
+            snapToPoint=dict(
+                value=settings["snapToPoint"]
+            ),
+            snapToFuturePoint=dict(
+                value=settings["snapToFuturePoint"]
+            ),
+            hapticFeedbackOnSnapTo=dict(
+                value=settings["hapticFeedbackOnSnapTo"]
+            ),
+            wantItalicAngle=dict(
+                selected=settings["wantItalicAngle"]
+            ),
+            colorsTable=dict(
+                items=[
+                    {
+                        "color" : tuple(color)
+                    }
+                    for color in settings["swatchColors"]
+                ],
+                columnDescriptions=[
+                    dict(
+                        identifier="color",
+                        cellDescription=dict(
+                            cellType="ColorWell",
+                        ),
+                        editable=True,
+                    )
+                ],
+                showColumnTitles=False,
+                width=itemWidth,
+                height=100
+            ),
+            smartMacros=dict(
+                width=itemWidth,
+                height=200
+            )
         )
-        windowDescription = dict(
-            type="Window",
-            size=("auto", "auto"),
+        self.w = ezui.EZWindow(
+            content=content,
+            descriptionData=descriptionData,
+            controller=self,
             title="Guide Tool Settings",
-            contentDescription=windowContent
-        )
-        self.w = ezui.makeItem(
-            windowDescription,
-            controller=self
+            size="auto"
         )
 
     def started(self):
         self.w.open()
 
-    def settingsFormCallback(self, sender):
+    def contentCallback(self, sender):
         self.storeSettings()
 
     def colorsTableAddRemoveButtonAddCallback(self, sender):
-        table = self.w.findItem("colorsTable")
+        table = self.w.getItem("colorsTable")
         item = dict(
             color=(0, 0, 0, 1)
         )
@@ -315,7 +265,7 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
         self.storeSettings()
 
     def colorsTableAddRemoveButtonRemoveCallback(self, sender):
-        table = self.w.findItem("colorsTable")
+        table = self.w.getItem("colorsTable")
         selection = table.getSelectedIndexes()
         items = table.get()
         for index in reversed(sorted(selection)):
@@ -324,14 +274,12 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
         self.storeSettings()
 
     def storeSettings(self):
-        settings = self.w.get()["settingsForm"]
+        settings = self.w.getItemValues()
         settings["swatchColors"] = [
             item["color"]
             for item in
             settings.pop("colorsTable")
         ]
-        for key, value in settings.pop("snapTo").items():
-            settings[key] = value
         for key, value in settings.items():
             key = extensionIdentifier + "." + key
             setExtensionDefault(key, value)
@@ -349,3 +297,6 @@ def main():
     if not isinstance(value, str):
         setExtensionDefault(key, defaultMacros)
 
+
+if __name__ == "__main__":
+    GuideToolDefaultsWindowController()

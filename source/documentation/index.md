@@ -77,6 +77,10 @@ The guide editor pop up will allow you to edit a guide's:
 - Measurement Display
 - Smart Rules
 
+## Font Guides List
+
+The font guides can be seen in the sheet that appears when you select the "Edit Font Guides" menu item.
+
 ## Smart Guides
 
 **Note: This is experimental but also awesome.**
