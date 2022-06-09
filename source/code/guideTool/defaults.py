@@ -236,6 +236,7 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
                 height=100
             ),
             smartMacros=dict(
+                value=settings["smartMacros"],
                 width=itemWidth,
                 height=200
             )
