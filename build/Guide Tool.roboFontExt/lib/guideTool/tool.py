@@ -542,9 +542,8 @@ class GuidelineTool(BaseEventTool):
                 glyphGuidelines = []
                 fontGuidelines = []
                 for guideline, state in self.selectedGuidelines.items():
-                    glyph = state.glyph
-                    font = state.font
-                    if glyph is not None:
+                    g = state.glyph
+                    if g is not None:
                         glyphGuidelines.append(guideline)
                     else:
                         fontGuidelines.append(guideline)
