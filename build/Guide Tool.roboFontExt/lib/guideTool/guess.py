@@ -1,6 +1,49 @@
+from fontParts.base.bPoint import absoluteBCPIn, absoluteBCPOut
 from lib.tools.bezierTools import calculateAngle
 
 def guessPositionAndAngleFromSelectedPoints(glyph):
+    """
+    Test case for one anchor selection:
+
+    <?xml version='1.0' encoding='UTF-8'?>
+    <glyph name="A" format="2">
+      <advance width="900"/>
+      <outline>
+        <contour>
+          <point x="200" y="200" type="line"/>
+          <point x="700" y="100" type="line"/>
+          <point x="600" y="600" type="line"/>
+          <point x="200" y="600" type="line"/>
+        </contour>
+        <contour>
+          <point x="400" y="300" type="curve" smooth="yes"/>
+          <point x="455" y="290"/>
+          <point x="490" y="344"/>
+          <point x="500" y="400" type="curve"/>
+          <point x="490" y="454"/>
+          <point x="455" y="500"/>
+          <point x="400" y="500" type="curve" smooth="yes"/>
+          <point x="345" y="500"/>
+          <point x="300" y="455"/>
+          <point x="300" y="400" type="curve" smooth="yes"/>
+          <point x="300" y="345"/>
+          <point x="346" y="310"/>
+        </contour>
+        <contour>
+          <point x="400" y="350" type="line"/>
+          <point x="430" y="340"/>
+          <point x="445" y="372"/>
+          <point x="450" y="400" type="curve"/>
+          <point x="450" y="400"/>
+          <point x="428" y="450"/>
+          <point x="400" y="450" type="curve" smooth="yes"/>
+          <point x="400" y="450"/>
+          <point x="350" y="427"/>
+          <point x="350" y="400" type="curve"/>
+        </contour>
+      </outline>
+    </glyph>
+    """
     font = glyph.font
     position = None
     angle = None
@@ -26,6 +69,14 @@ def guessPositionAndAngleFromSelectedPoints(glyph):
             elif (bcpIn[1], bcpOut[1]) == (0, 0):
                 position = (0, anchor[1])
                 angle = 0
+            # smooth
+            elif bPoint.type == "curve":
+                position = (anchor[0], anchor[1])
+                angle = calculateAngle(bcpIn, bcpOut)
+            # fallback (should only happen for corner)
+            else:
+                position = (anchor[0], anchor[1])
+                angle = 0
         # one off curve
         elif bcpIn != (0, 0) or bcpOut != (0, 0):
             for point in (bcpIn, bcpOut):
@@ -39,6 +90,15 @@ def guessPositionAndAngleFromSelectedPoints(glyph):
                 elif point[1] == 0:
                     position = (0, anchor[1])
                     angle = 0
+                # fallback
+                else:
+                    position = (anchor[0], anchor[1])
+                    if point == bcpIn:
+                        b = absoluteBCPIn(anchor, point)
+                        angle = calculateAngle(b, anchor)
+                    else:
+                        b = absoluteBCPOut(anchor, point)
+                        angle = calculateAngle(anchor, b)
         # no usable off curves
         if angle is None:
             # not likely to put a guide on a vertical metric
@@ -62,6 +122,10 @@ def guessPositionAndAngleFromSelectedPoints(glyph):
             elif 90 in angles:
                 position = (anchor[0], 0)
                 angle = 90
+            # fallback
+            else:
+                position = (anchor[0], anchor[1])
+                angle = 0
     else:
         bPoints = [p[-1] for p in selectedBPoints]
         x = set([bPoint.anchor[0] for bPoint in bPoints])
