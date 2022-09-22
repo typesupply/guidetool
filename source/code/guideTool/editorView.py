@@ -279,13 +279,6 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
         if color is None:
             color = noColor
         isGlobal = guideline.naked().isGlobal
-        rules = ""
-        if isGlobal:
-            rules = getGuidelineLibValue(
-                self.guideline,
-                extensionIdentifier + ".rules",
-                ""
-            )
         data = dict(
             nameTextField=guideline.name,
             xPositionTextField=guideline.x,
@@ -294,11 +287,12 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
             colorColorWell=color,
             magneticSlider=guideline.magnetic,
             measurementsCheckbox=guideline.showMeasurements,
-            rulesTextEditor=rules
+            # rulesTextEditor will be handled by enableRulesEditor
         )
         if not self.onlyFontLevel:
             data["levelRadioButtons"] = not isGlobal
         self.setItemValues(data)
+        self.enableRulesEditor()
 
     def closeUndoState(self):
         if self.haveStartedUndo:
