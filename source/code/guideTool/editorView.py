@@ -10,6 +10,15 @@ from .compatibility import getGuidelineLibValue, setGuidelineLibValue
 numberTextFieldWidth = 50
 noColor = (1.0, 1.0, 1.0, 1.0)
 
+def convertNumberType(number):
+    if not isinstance(number, (int, float)):
+        number = float(number)
+    if not isinstance(number, int):
+        asInt = int(number)
+        if asInt == number:
+            number = asInt
+    return number
+
 class GuideToolGuidelineEditor(ezui.TwoColumnForm):
 
     font = None
@@ -172,12 +181,15 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
         x = data["xPositionTextField"]
         if x is None:
             x = guideline.x
+        x = convertNumberType(x)
         y = data["yPositionTextField"]
         if y is None:
             y = guideline.y
+        y = convertNumberType(y)
         angle = data["angleTextField"]
         if angle is None:
             angle = guideline.angle
+        angle = convertNumberType(angle)
         color = data["colorColorWell"]
         if color == noColor:
             color = None
