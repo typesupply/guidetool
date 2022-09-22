@@ -30,8 +30,8 @@ def guessPositionAndAngleFromSelectedPoints(glyph):
           <point x="346" y="310"/>
         </contour>
         <contour>
-          <point x="400" y="350" type="curve"/>
-          <point x="400" y="350"/>
+          <point x="400" y="350" type="line"/>
+          <point x="430" y="340"/>
           <point x="445" y="372"/>
           <point x="450" y="400" type="curve"/>
           <point x="450" y="400"/>
@@ -40,8 +40,6 @@ def guessPositionAndAngleFromSelectedPoints(glyph):
           <point x="400" y="450"/>
           <point x="350" y="427"/>
           <point x="350" y="400" type="curve"/>
-          <point x="350" y="400"/>
-          <point x="373" y="355"/>
         </contour>
       </outline>
     </glyph>
