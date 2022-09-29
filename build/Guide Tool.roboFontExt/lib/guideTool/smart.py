@@ -1,5 +1,6 @@
 import fnmatch
 import defcon
+from fontTools import unicodedata
 
 # ------
 # Syntax
@@ -294,7 +295,10 @@ def matchGlyphRules(rules, glyph):
             if matchType == "all":
                 return False
     # Scripts
-    script = unicodeData.scriptForGlyphName(glyph.name)
+    uni = unicodeData.pseudoUnicodeForGlyphName(glyph.name)
+    script = None
+    if uni:
+        script = unicodedata.script(chr(uni))
     if script in rules.get("scripts", []):
         if matchType == "any":
             return True

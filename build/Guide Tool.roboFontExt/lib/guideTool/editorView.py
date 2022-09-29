@@ -1,10 +1,11 @@
 import AppKit
 import ezui
+from fontTools import unicodedata
 from mojo.extensions import getExtensionDefault
 from mojo.UI import getDefault
 from mojo.events import postEvent
 from .defaults import extensionIdentifier
-from .smart import parseRules
+from .smart import parseRules, matchGlyphRules, parseMacros
 from .compatibility import getGuidelineLibValue, setGuidelineLibValue
 
 numberTextFieldWidth = 50
@@ -41,6 +42,9 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
         self.externalCallback = callback
         self.onlyFontLevel = onlyFontLevel
         self.defaultColors = getExtensionDefault(extensionIdentifier + ".swatchColors")
+
+        titleColumnWidth = 75
+        itemColumnWidth = 175
 
         positionValueType = "number"
         roundTo = getDefault("glyphViewRoundValues", defaultClass=int)
@@ -111,7 +115,9 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
         [ ] Show Measurements @measurementsCheckbox
 
         : Rules:
-        [[__]] @rulesTextEditor
+        * VerticalStack
+        > [[__]] @rulesTextEditor
+        > ((...)) @rulesPullDownButton
         """
         descriptionData = dict(
             levelRadioButtons=dict(),
@@ -140,7 +146,15 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
             ),
             measurementsCheckbox=dict(),
             rulesTextEditor=dict(
-                height=100
+                height=100,
+                width=itemColumnWidth
+            ),
+            rulesPullDownButton=dict(
+                image=ezui.tools.makeImage(
+                    symbolName="plus",
+                    imageName=AppKit.NSImageNameAddTemplate,
+                    template=True
+                )
             )
         )
         contents = ezui.tools.normalizeContentDescriptions(
@@ -151,8 +165,8 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
             contents=contents,
             descriptionData=descriptionData,
             identifier=identifier,
-            titleColumnWidth=75,
-            itemColumnWidth=175,
+            titleColumnWidth=titleColumnWidth,
+            itemColumnWidth=itemColumnWidth,
             callback=self.internalCallback,
             container=container,
             controller=self
@@ -256,6 +270,7 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
                     extensionIdentifier + ".rules",
                     ""
                 )
+                self.buildRulesPullDownButtonItems()
         rulesEditor.set(rules)
         rulesEditor.getNSTextView().setEditable_(editable)
 
@@ -281,6 +296,37 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
             angle = 0
         angle += 90
         angleTextField.set(angle)
+        self.internalCallback(self)
+
+    def buildRulesPullDownButtonItems(self):
+        # XXX
+        # ezui doesn't allow setting a menu after
+        # contruction. this needs to change. until
+        # then, here's a hack.
+        button = self.getItem("rulesPullDownButton")
+        items = getRuleSuggestionMenuItems(
+            self.font,
+            self.glyph,
+            self.rulesPullDownButtonItemCallback
+        )
+        nsButton = button.getNSPopUpButton()
+        imageItem = nsButton.itemAtIndex_(0)
+        nsButton.removeAllItems()
+        menu = nsButton.menu()
+        menu.addItem_(imageItem)
+        ezui.tools.buildMenuItems(
+            item=button,
+            descriptions=items,
+            menu=menu,
+            controller=self
+        )
+
+    def rulesPullDownButtonItemCallback(self, sender):
+        title = sender.title()
+        rulesEditor = self.getItem("rulesTextEditor")
+        text = rulesEditor.get().strip() + "\n" + title.split("#")[0].strip()
+        text = text.strip()
+        rulesEditor.set(text)
         self.internalCallback(self)
 
     def setObjects(self, font, glyph, guideline):
@@ -310,4 +356,148 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
         if self.haveStartedUndo:
             self.guideline.naked().performUndo()
 
+
 ezui.registerClass("GuideToolGuidelineEditor", GuideToolGuidelineEditor)
+
+
+# Rule Suggestions
+
+categories = {
+    "Cc" : "Control",
+    "Cf" : "Format",
+    "Co" : "Private Use",
+    "Cs" : "Surrrogate",
+    "Ll" : "Lowercase Letter",
+    "Lm" : "Modifier Letter",
+    "Lo" : "Other Letter",
+    "Lt" : "Titlecase Letter",
+    "Lu" : "Uppercase Letter",
+    "Mc" : "Spacing Mark",
+    "Me" : "Enclosing Mark",
+    "Mn" : "Nonspacing Mark",
+    "Nd" : "Decimal Number",
+    "Nl" : "Letter Number",
+    "No" : "Other Number",
+    "Pc" : "Connector Punctuation",
+    "Pd" : "Dash Punctuation",
+    "Pe" : "Close Punctuation",
+    "Pf" : "Final Punctuation",
+    "Pi" : "Initial Punctuation",
+    "Po" : "Other Punctuation",
+    "Ps" : "Open Punctuation",
+    "Sc" : "Currency Symbol",
+    "Sk" : "Modifier Symbol",
+    "Sm" : "Math Symbol",
+    "So" : "Other Symbol",
+    "Zl" : "Line Separator",
+    "Zp" : "Paragraph Separator",
+    "Zs" : "Space Separator"
+}
+
+def getRuleSuggestionMenuItems(font, glyph, callback):
+    def makeItem(text):
+        item = dict(
+            text=text,
+            callback=callback
+        )
+        return item
+
+    items = []
+    macros = getExtensionDefault(extensionIdentifier + ".smartMacros")
+    macros = parseMacros(macros)
+    # glyph suggestions
+    if glyph is not None:
+        unicodeData = font.asDefcon().unicodeData
+        glyphName = glyph.name
+        uni = unicodeData.pseudoUnicodeForGlyphName(glyphName)
+        script = None
+        if uni is not None:
+            script = unicodedata.script(chr(uni))
+        category = unicodeData.categoryForGlyphName(glyphName)
+        matchedMacros = set()
+        for name, rules in macros.items():
+            if matchGlyphRules(rules, glyph):
+                matchedMacros.add(name)
+        # macros
+        for macro in matchedMacros:
+            item = makeItem(
+                text=f"macro: {macro}"
+            )
+            items.append(item)
+        # name patterns
+        item = makeItem(
+            text=f"name: {glyphName.split('.')[0]}.*"
+        )
+        items.append(item)
+        if "." in glyphName and not glyphName.startswith("."):
+            extension = glyphName.split(".", 1)[-1]
+            item = makeItem(
+                text=f"name: *.{extension}"
+            )
+            items.append(item)
+        # script
+        if script:
+            item = makeItem(
+                text=f"script: {script} # {unicodedata.script_name(script)}"
+            )
+            items.append(item)
+        # category
+        if category:
+            item = makeItem(
+                text=f"category: {category} # {categories.get(category)}"
+            )
+            items.append(item)
+        # groups
+        for groupName, contents in sorted(font.groups.items()):
+            if glyphName in contents:
+                item = makeItem(
+                    text=f"group: {groupName}"
+                )
+                items.append(item)
+        # divider
+        items.append("---")
+    # default suggestions
+    # macros
+    if macros:
+        macroItems = dict(
+            text="Macros",
+            descriptions=[]
+        )
+        for macro in sorted(macros.keys()):
+            item = makeItem(
+                text=f"macro: {macro}"
+            )
+            macroItems["descriptions"].append(item)
+        items.append(macroItems)
+    # groups
+    groups = [groupName for groupName in font.groups.keys() if not groupName.startswith("public.kern")]
+    if groups:
+        groupItems = dict(
+            text="Groups",
+            descriptions=[]
+        )
+        for groupName in sorted(groups):
+            item = makeItem(
+                text=f"group: {groupName}"
+            )
+            groupItems["descriptions"].append(item)
+        items.append(groupItems)
+    # scripts
+    scriptItems = dict(
+        text="Scripts",
+        descriptions=[
+            makeItem(text=f"script: {tag} \t# {name}")
+            for tag, name in unicodedata.Scripts.NAMES.items()
+        ]
+    )
+    items.append(scriptItems)
+    # categories
+    categoryItems = dict(
+        text="Categories",
+        descriptions=[
+            makeItem(text=f"category: {tag} \t# {name}")
+            for tag, name in categories.items()
+        ]
+    )
+    items.append(categoryItems)
+    return items

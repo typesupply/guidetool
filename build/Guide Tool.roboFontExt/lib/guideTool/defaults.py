@@ -39,7 +39,7 @@ name: cedilla
 > numbers
 category: Nd
 
-> tabular:
+> tabular
 name: *.tab*
 
 > currency
