@@ -3,10 +3,10 @@
 # -----------------
 
 name = "Guide Tool"
-version = "1.3"
+version = "1.4"
 developer = "Type Supply"
 developerURL = "http://typesupply.com"
-roboFontVersion = "4.2"
+roboFontVersion = "4.3"
 pycOnly = False
 menuItems = [
     dict(

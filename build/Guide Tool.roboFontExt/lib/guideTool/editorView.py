@@ -32,7 +32,8 @@ class GuideToolGuidelineEditor(ezui.TwoColumnForm):
             container=None,
             controller=None,
             descriptionData={},
-            onlyFontLevel=False
+            onlyFontLevel=False,
+            **kwargs
         ):
         callback = ezui.tools.callback.findCallback(
             callback,

@@ -171,8 +171,6 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
             for key in defaults.keys()
         }
 
-        itemWidth = 200
-
         content = """
         = TwoColumnForm
 
@@ -198,6 +196,10 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
         [[__]]                   @smartMacros
         """
         descriptionData = dict(
+            content=dict(
+                titleColumnWidth=130,
+                itemColumnWidth=200
+            ),
             highlightAlphaScale=dict(
                 minValue=0,
                 maxValue=1.0,
@@ -232,12 +234,10 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
                     )
                 ],
                 showColumnTitles=False,
-                width=itemWidth,
                 height=100
             ),
             smartMacros=dict(
                 value=settings["smartMacros"],
-                width=itemWidth,
                 height=200
             )
         )
