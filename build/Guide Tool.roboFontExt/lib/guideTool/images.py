@@ -30,7 +30,7 @@ guideToolToolbarIcon.setTemplate_(True)
 # ------
 
 bundle = ExtensionBundle("Guide Tool")
-path = os.path.join(bundle.resourcesPath(), "guideToolCursor.pdf")
+path = os.path.join(bundle.resourcesFolder, "guideToolCursor.pdf")
 guideToolCursor = CreateCursor(
     path,
     (10, 10)
