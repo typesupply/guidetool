@@ -83,8 +83,6 @@ The font guides can be seen in the sheet that appears when you select the "Edit 
 
 ## Smart Guides
 
-**Note: This is experimental but also awesome.**
-
 Guides can be set to only be visible when certain conditions are met by a glyph. For example, you can specify that a guide should only be shown in uppercase glyphs. This is managed by creating rules for a guide in the guide editor pop up. The rules are defined with a simple syntax:
 
 ```
