@@ -1,8 +1,10 @@
 import math
 from collections import namedtuple
 import AppKit
+from fontTools.misc.arrayTools import rectCenter
 import defcon
 from booleanOperations.booleanGlyph import BooleanGlyph
+from fontParts.base.base import interpolate
 from lib.tools import bezierTools
 from mojo.events import installTool, BaseEventTool, extractNSEvent, addObserver
 from mojo.UI import getDefault
@@ -38,6 +40,8 @@ class GuidelineTool(BaseEventTool):
     wantItalicAngle = True
     wantsSnapToPoint = True
     wantsSnapToFuturePoints = True
+    snapToLineCenters = True
+    snapToContourBounds = True
     highlightAlphaScale = 0.15
 
     def setup(self):
@@ -87,14 +91,13 @@ class GuidelineTool(BaseEventTool):
         self.wantItalicAngle = getExtensionDefault(extensionIdentifier + ".wantItalicAngle")
         self.wantsSnapToPoint = getExtensionDefault(extensionIdentifier + ".snapToPoint")
         self.wantsSnapToFuturePoints = getExtensionDefault(extensionIdentifier + ".snapToFuturePoint")
+        self.wantsSnapToLineCenters = getExtensionDefault(extensionIdentifier + ".snapToLineCenter")
+        self.wantsSnapToContourBounds = getExtensionDefault(extensionIdentifier + ".snapToContourBounds")
         self.wantsHapticFeedbackOnSnapTo = getExtensionDefault(extensionIdentifier + ".hapticFeedbackOnSnapTo")
         self.highlightAlphaScale = getExtensionDefault(extensionIdentifier + ".highlightAlphaScale")
 
     def getToolbarIcon(self):
         return guideToolToolbarIcon
-    
-    def getToolbarTip(self):
-        return 'Guide Tool'
 
     def getDefaultCursor(self):
         return guideToolCursor
@@ -134,25 +137,36 @@ class GuidelineTool(BaseEventTool):
 
     # Display
 
+    def _getSnapToPointImageStarPointCount(self, level):
+        if level == 2:
+            return 7
+        if level == 3:
+            return 4
+        return 10
+
     def displaySnapToPoints(self):
         container = self.snapToPointsLayer
         if not self.snappingToThesePoints:
             container.clearSublayers()
         else:
             imageSettings = self.snapToPointSymbolSettings
-            imageSettings["size"] = (self.snapToPointSymbolSize, self.snapToPointSymbolSize)
             imageSettings["fillColor"] = self.snapToPointSymbolColor
-            needed = list(self.snappingToThesePoints)
+            imageSettings["size"] = (self.snapToPointSymbolSize, self.snapToPointSymbolSize)
+            needed = dict(self.snappingToThesePoints)
             remove = []
             for symbol in container.getSublayers():
                 point = symbol.getPosition()
                 if point in needed:
-                    needed.remove(point)
+                    level = needed[point]
+                    imageSettings["pointCount"] = self._getSnapToPointImageStarPointCount(level)
+                    symbol.setImageSettings(imageSettings)
+                    needed.pop(point)
                 else:
                     remove.append(symbol)
             if needed or remove:
                 with container.sublayerGroup():
-                    for point in needed:
+                    for point, level in needed.items():
+                        imageSettings["pointCount"] = self._getSnapToPointImageStarPointCount(level)
                         container.appendSymbolSublayer(
                             position=point,
                             imageSettings=imageSettings
@@ -492,7 +506,7 @@ class GuidelineTool(BaseEventTool):
                             self.highlightAlphaScale
                         )
                         if self.snappingToThesePoints:
-                            snapTo = list(self.snappingToThesePoints)[0]
+                            snapTo = list(self.snappingToThesePoints.keys())[0]
                             if angle in horizontalAngles:
                                 y = snapTo[1]
                             elif angle in verticalAngles:
@@ -777,12 +791,16 @@ class GuidelineTool(BaseEventTool):
         xMax = x + padding
         yMin = y - padding
         yMax = y + padding
-        hits = {}
+        hits = {
+            # distance : {point : level}
+        }
         snapToPoints = glyph.getRepresentation(
             snapToPointsKey,
-            removeOverlap=self.wantsSnapToFuturePoints
+            removeOverlap=self.wantsSnapToFuturePoints,
+            lineCenters=self.wantsSnapToLineCenters,
+            boundsPoints=self.wantsSnapToContourBounds
         )
-        for point in snapToPoints:
+        for point, level in snapToPoints.items():
             px, py = point
             distance = None
             if angle in horizontalAngles:
@@ -798,8 +816,9 @@ class GuidelineTool(BaseEventTool):
             if distance is None:
                 continue
             if distance not in hits:
-                hits[distance] = set()
-            hits[distance].add(point)
+                hits[distance] = {}
+            if point not in hits[distance] or hits[distance][point] > level:
+                hits[distance][point] = level
         if not hits:
             return set()
         closest = min(hits.keys())
@@ -867,22 +886,61 @@ def getGuidelineParentForUndo(guideline):
 
 snapToPointsKey = extensionIdentifier + ".snapToPoints"
 
-def getAllPointsFromGlyph(glyph):
-    points = set()
+def getAllPointsFromGlyph(glyph, lineCenters=False, boundsPoints=False):
+    onCurves = set()
+    lines = set()
+    bounds = set()
     for contour in glyph:
-        for point in contour:
-            if point.segmentType is not None:
-                points.add((point.x, point.y))
+        if boundsPoints:
+            xMin, yMin, xMax, yMax = contour.bounds
+            bounds.add(rectCenter((xMin, yMin, xMax, yMax)))
+            bounds.add((xMin, yMin))
+            bounds.add((xMin, yMax))
+            bounds.add((xMax, yMax))
+            bounds.add((xMax, yMin))
+        prev = contour.segments[-1]
+        for segment in contour.segments:
+            point = segment[-1]
+            onCurves.add((point.x, point.y))
+            if all((lineCenters, point.segmentType == "line")):
+                pt0 = prev[-1]
+                pt1 = point
+                x = interpolate(pt0.x, pt1.x, 0.5)
+                y = interpolate(pt0.y, pt1.y, 0.5)
+                lines.add((x, y))
+            prev = segment
+    points = {}
+    for point in onCurves:
+        points[point] = 1
+    for point in lines:
+        if point not in points:
+            points[point] = 2
+    for point in bounds:
+        if point not in points:
+            points[point] = 3
     return points
 
-def snapToPointsRepresentationFactory(glyph, removeOverlap=False):
-    points = getAllPointsFromGlyph(glyph)
+def snapToPointsRepresentationFactory(
+        glyph,
+        removeOverlap=False,
+        lineCenters=False,
+        boundsPoints=False
+    ):
+    points = getAllPointsFromGlyph(
+        glyph,
+        lineCenters=lineCenters,
+        boundsPoints=boundsPoints
+    )
     if removeOverlap:
         boolGlyph = BooleanGlyph(glyph)
         boolGlyph = boolGlyph.removeOverlap()
         result = defcon.Glyph()
         boolGlyph.drawPoints(result.getPointPen())
-        points |= getAllPointsFromGlyph(result)
+        points |= getAllPointsFromGlyph(
+            result,
+            lineCenters=lineCenters,
+            boundsPoints=boundsPoints
+        )
     return points
 
 defcon.registerRepresentationFactory(

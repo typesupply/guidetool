@@ -141,6 +141,8 @@ defaults = {
     "smartMacros" : defaultMacros,
     "snapToPoint" : True,
     "snapToFuturePoint" : True,
+    "snapToLineCenter" : True,
+    "snapToContourBounds" : True,
     "hapticFeedbackOnSnapTo" : True,
     "wantItalicAngle" : True,
     "highlightAlphaScale" : 0.15,
@@ -180,6 +182,8 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
         : Snap To:
         [ ] Point                @snapToPoint
         [ ] Future Point         @snapToFuturePoint
+        [ ] Line Center          @snapToLineCenter
+        [ ] Contour Bounds       @snapToContourBounds
         [ ] Use haptic feedback. @hapticFeedbackOnSnapTo
 
         : Vertical Angle:
@@ -210,6 +214,12 @@ class GuideToolDefaultsWindowController(ezui.WindowController):
             ),
             snapToFuturePoint=dict(
                 value=settings["snapToFuturePoint"]
+            ),
+            snapToLineCenter=dict(
+                value=settings["snapToLineCenter"]
+            ),
+            snapToContourBounds=dict(
+                value=settings["snapToContourBounds"]
             ),
             hapticFeedbackOnSnapTo=dict(
                 value=settings["hapticFeedbackOnSnapTo"]

@@ -427,6 +427,10 @@ def getRuleSuggestionMenuItems(font, glyph, callback):
             items.append(item)
         # name patterns
         item = makeItem(
+            text=f"name: {glyphName}"
+        )
+        items.append(item)
+        item = makeItem(
             text=f"name: {glyphName.split('.')[0]}.*"
         )
         items.append(item)
