@@ -762,7 +762,11 @@ class GuidelineTool(BaseEventTool):
                 return guideline
 
     def findGuidelinesIntersectedBySelectionRect(self):
-        rect = self.getMarqueRect()
+        # legacy support:
+        try:
+            rect = self.getMarqueeRect()
+        except AttributeError:
+            rect = self.getMarqueRect()
         if rect is None:
             return {}
         (xMin, yMin), (w, h) = rect
