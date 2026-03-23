@@ -764,7 +764,7 @@ class GuidelineTool(BaseEventTool):
     def findGuidelinesIntersectedBySelectionRect(self):
         rect = self.getMarqueRect()
         if rect is None:
-            return []
+            return {}
         (xMin, yMin), (w, h) = rect
         xMax = xMin + w
         yMax = yMin + h
