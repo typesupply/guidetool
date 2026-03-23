@@ -73,7 +73,10 @@ class GuidelineTool(BaseEventTool):
         )
 
     def loadDefaults(self):
-        self.colorMarquee = getDefault("glyphViewSelectionMarqueColor")
+        self.colorMarquee = getDefault("glyphViewSelectionMarqueeColor", None)
+        # legacy support:
+        if self.colorMarquee is None:
+            self.colorMarquee = getDefault("glyphViewSelectionMarqueColor")
         self.roundValuesTo = getDefault("glyphViewRoundValues", defaultClass=int)
         self.arrowIncrement = float(getDefault("glyphViewIncrement"))
         self.arrowShiftIncrement = float(getDefault("glyphViewShiftIncrement"))
